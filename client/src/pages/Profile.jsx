@@ -1,39 +1,43 @@
-import { useContext, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { StoreContext } from "../store";
+import { useStore } from "../store";
 import { MdAccountCircle } from "react-icons/md";
-import { getDaysLeft } from "../utils";
+import { displayAddress, getDaysLeft } from "../utils";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { username, campaigns } = useContext(StoreContext);
+  const { contract, address, getCampaigns } = useStore();
+  const [campaigns, setCampaigns] = useState([]);
+  const [isLoading, setLoading] = useState(false);
 
-  const myCampaigns = useMemo(() => {
-    return campaigns.filter(({ owner }) => owner === username);
-  }, [campaigns]);
+  useEffect(() => {
+    if (contract) fetchCampaigns();
+  }, [contract, address]);
 
-  const getIndex = (title) => {
-    return campaigns.findIndex((campaign) => campaign.title === title);
+  const fetchCampaigns = async () => {
+    setLoading(true);
+    const data = await getCampaigns();
+    const targetCampaigns = data.filter(
+      (campaign) => campaign.owner == address
+    );
+    setCampaigns(targetCampaigns);
+    setLoading(false);
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="font-bold">Your Campaigns ({myCampaigns.length})</div>
+    <div className="flex flex-col gap-4 flex-grow">
+      <div className="font-bold">Your Campaigns ({campaigns.length})</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8">
-        {myCampaigns.map((campaign, index) => (
+        {campaigns.map((campaign) => (
           <div
-            key={index}
-            onClick={() =>
-              navigate(`/campaigns/details/${getIndex(campaign.title)}`)
-            }
+            key={campaign.id}
+            onClick={() => navigate(`/campaigns/details/${campaign.id}`)}
             className="group rounded-lg overflow-hidden bg-zinc-800 cursor-pointer hover:bg-zinc-700"
           >
             <div className="w-full h-60 rounded-lg overflow-hidden">
               <img
                 className="transition-all group-hover:scale-100 group-hover:grayscale-0 scale-110 grayscale-[50%] w-full h-full object-cover"
-                src={`https://picsum.photos/${
-                  1000 + getIndex(campaign.title)
-                }/${500 + getIndex(campaign.title)}`}
+                src={campaign.image}
                 alt={campaign.title}
               />
             </div>
@@ -43,7 +47,7 @@ const Profile = () => {
                   {campaign.title}
                 </div>
                 <div className="truncate text-zinc-500 italic">
-                  {campaign.story}
+                  {campaign.description}
                 </div>
               </div>
               <div className="flex justify-between">
@@ -64,7 +68,9 @@ const Profile = () => {
                 <MdAccountCircle className="text-4xl" />
                 <div className="truncate italic">
                   <span className="text-zinc-500">by</span>{" "}
-                  <span className="font-bold">{campaign.owner}</span>
+                  <span className="font-bold">
+                    {displayAddress(campaign.owner)}
+                  </span>
                 </div>
               </div>
             </div>

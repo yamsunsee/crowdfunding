@@ -9,4 +9,22 @@ const getPercent = (current, total) => {
   return `${Math.min(100, Math.floor((current * 100) / total))}%`;
 };
 
-export { getDaysLeft, getPercent };
+const checkValidImage = (url, callback) => {
+  const img = new Image();
+  img.src = url;
+
+  if (img.complete) callback(true);
+
+  img.onload = () => callback(true);
+  img.onerror = () => callback(false);
+};
+
+const displayAddress = (address) => {
+  if (address)
+    return `${address.substring(0, 6)}...${address.substring(
+      address.length - 4
+    )}`;
+  return "...";
+};
+
+export { getDaysLeft, getPercent, checkValidImage, displayAddress };

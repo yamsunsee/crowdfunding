@@ -7,13 +7,12 @@ import {
   MdKey,
 } from "react-icons/md";
 import { TbPlugConnected } from "react-icons/tb";
-import { useContext } from "react";
-import { StoreContext } from "../store";
+import { useStore } from "../store";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { isConnected } = useContext(StoreContext);
+  const { address, connect } = useStore();
 
   return (
     <nav className="flex items-center justify-between">
@@ -36,26 +35,34 @@ const Navbar = () => {
         <div>ng</div>
       </div>
       <div className="flex gap-4 items-center">
-        {!isConnected && (
-          <div className="button">
+        {address ? (
+          pathname !== "/campaigns/create" && (
+            <div
+              onClick={() => navigate("/campaigns/create")}
+              className="button"
+            >
+              <MdCampaign />
+              <div className="hidden lg:inline-block whitespace-nowrap">
+                Create a campaign
+              </div>
+            </div>
+          )
+        ) : (
+          <div onClick={connect} className="button">
             <TbPlugConnected />
-            <div>Connect to wallet</div>
-          </div>
-        )}
-        {pathname !== "/campaigns/create" && (
-          <div onClick={() => navigate("/campaigns/create")} className="button">
-            <MdCampaign />
-            <div className="font-bold hidden lg:inline-block whitespace-nowrap">
-              Create a campaign
+            <div className="hidden lg:inline-block whitespace-nowrap">
+              Connect to wallet
             </div>
           </div>
         )}
-        <div
-          onClick={() => navigate("/profile")}
-          className="hover:bg-zinc-700 cursor-pointer p-2 bg-zinc-800 flex justify-center items-center rounded-lg"
-        >
-          <MdAccountCircle className="text-5xl" />
-        </div>
+        {pathname !== "/profile" && (
+          <div
+            onClick={() => navigate("/profile")}
+            className="hover:bg-zinc-700 cursor-pointer p-2 bg-zinc-800 flex justify-center items-center rounded-lg"
+          >
+            <MdAccountCircle className="text-5xl" />
+          </div>
+        )}
       </div>
     </nav>
   );

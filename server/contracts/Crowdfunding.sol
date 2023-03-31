@@ -5,7 +5,7 @@ contract Crowdfunding {
     struct Campaign {
         address owner;
         string title;
-        string descripion;
+        string description;
         string image;
         uint256 target;
         uint256 deadline;
@@ -35,7 +35,7 @@ contract Crowdfunding {
 
         campaign.owner = _owner;
         campaign.title = _title;
-        campaign.descripion = _description;
+        campaign.description = _description;
         campaign.image = _image;
         campaign.target = _target;
         campaign.deadline = _deadline;
@@ -45,6 +45,27 @@ contract Crowdfunding {
 
         return numberOfCampaigns - 1;
     }
+
+    function removeCampaign(uint256 _id) public {
+    require(_id < numberOfCampaigns, "Invalid campaign id");
+
+    Campaign storage campaign = campaigns[_id];
+
+    require(
+        campaign.owner == msg.sender,
+        "Only the campaign owner can remove the campaign"
+    );
+
+    if (campaign.amountCollected > 0) {
+        (bool sent, ) = payable(campaign.owner).call{value: campaign.amountCollected}("");
+        require(sent, "Failed to send funds");
+    }
+
+    numberOfCampaigns--;
+    campaigns[_id] = campaigns[numberOfCampaigns];
+    delete campaigns[numberOfCampaigns];
+}
+
 
     function donateToCampaign(uint256 _id) public payable {
         uint256 amount = msg.value;

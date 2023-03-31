@@ -1,6 +1,8 @@
 import { Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import { Navbar, Footer } from "./components";
 import { Home, Profile, CreateCampaign, CampaignDetails } from "./pages";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -14,6 +16,12 @@ function App() {
           <Route path="/campaigns/details/:id" element={<CampaignDetails />} />
         </Routes>
         <Footer />
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          closeOnClick
+          pauseOnHover
+        />
       </div>
     </div>
   );

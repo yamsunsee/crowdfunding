@@ -1,17 +1,45 @@
+import { useState } from "react";
 import { MdCreditScore, MdRocketLaunch } from "react-icons/md";
 import { SiCampaignmonitor } from "react-icons/si";
+import { RiLoader4Line } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useStore } from "../store";
+import { Copyable } from "../components";
+import { checkValidImage } from "../utils";
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
+  const { address, createCampaign } = useStore();
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    target: "",
+    deadline: "",
+    image: "",
+  });
+  const [isLoading, setLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (isLoading) return;
 
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-    console.log(data);
-    navigate("/");
+    checkValidImage(form.image, async (isValid) => {
+      if (isValid) {
+        setLoading(true);
+        await createCampaign(form);
+        setLoading(false);
+        navigate("/");
+      } else {
+        toast.error("Please enter a valid image URL!");
+        setForm({ ...form, image: "" });
+      }
+    });
   };
 
   return (
@@ -23,14 +51,10 @@ const CreateCampaign = () => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
         <div className="grid grid-cols-2 gap-8">
           <div className="input">
-            <label htmlFor="owner">Your Name *</label>
-            <input
-              required
-              name="owner"
-              id="owner"
-              type="text"
-              placeholder="Write your name"
-            />
+            <label htmlFor="owner">Your Address *</label>
+            <div className="address">
+              <Copyable string={address} />
+            </div>
           </div>
           <div className="input">
             <label htmlFor="title">Campaign Title *</label>
@@ -39,18 +63,22 @@ const CreateCampaign = () => {
               name="title"
               id="title"
               type="text"
-              placeholder="Write your name"
+              placeholder="Write a title"
+              value={form.title}
+              onChange={handleChange}
             />
           </div>
         </div>
         <div className="input">
-          <label htmlFor="story">Story *</label>
+          <label htmlFor="description">Description *</label>
           <textarea
             required
-            name="story"
-            id="story"
+            name="description"
+            id="description"
             rows="10"
-            placeholder="Write your story"
+            placeholder="Write a description of your campaign"
+            value={form.description}
+            onChange={handleChange}
           />
         </div>
         <div className="bg-zinc-900 p-8 rounded-lg flex gap-2 text-2xl items-center justify-center">
@@ -70,6 +98,8 @@ const CreateCampaign = () => {
               min="0"
               step="0.1"
               placeholder="ETH 0.5"
+              value={form.target}
+              onChange={handleChange}
             />
           </div>
           <div className="input">
@@ -80,21 +110,33 @@ const CreateCampaign = () => {
               id="deadline"
               type="date"
               className="picker"
+              value={form.deadline}
+              onChange={handleChange}
             />
           </div>
         </div>
         <div className="input">
-          <label htmlFor="image">Campaign image *</label>
+          <label htmlFor="image">Campaign Image *</label>
           <input
             required
             name="image"
             id="image"
             type="text"
             placeholder="Place image URL of your campaign"
+            value={form.image}
+            onChange={handleChange}
           />
         </div>
-        <button type="submit" className="button w-fit self-center">
-          <SiCampaignmonitor />
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`button w-fit self-center${isLoading ? " disabled" : ""}`}
+        >
+          {isLoading ? (
+            <RiLoader4Line className="animate-spin" />
+          ) : (
+            <SiCampaignmonitor />
+          )}
           <div>Submit new campaign</div>
         </button>
       </form>

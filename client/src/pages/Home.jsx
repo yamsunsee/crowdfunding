@@ -1,27 +1,40 @@
-import { useContext } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { StoreContext } from "../store";
+import { useStore } from "../store";
 import { MdAccountCircle } from "react-icons/md";
-import { getDaysLeft } from "../utils";
+import { getDaysLeft, displayAddress } from "../utils";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { campaigns } = useContext(StoreContext);
+  const { contract, address, getCampaigns } = useStore();
+  const [campaigns, setCampaigns] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (contract) fetchCampaigns();
+  }, [contract, address]);
+
+  const fetchCampaigns = async () => {
+    setLoading(true);
+    const data = await getCampaigns();
+    setCampaigns(data);
+    setLoading(false);
+  };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 flex-grow">
       <div className="font-bold">All Campaigns ({campaigns.length})</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8">
-        {campaigns.map((campaign, index) => (
+        {campaigns.map((campaign) => (
           <div
-            key={index}
-            onClick={() => navigate(`/campaigns/details/${index}`)}
+            key={campaign.id}
+            onClick={() => navigate(`/campaigns/details/${campaign.id}`)}
             className="group rounded-lg overflow-hidden bg-zinc-800 cursor-pointer hover:bg-zinc-700"
           >
             <div className="w-full h-60 rounded-lg overflow-hidden">
               <img
                 className="transition-all group-hover:scale-100 group-hover:grayscale-0 scale-110 grayscale-[50%] w-full h-full object-cover"
-                src={`https://picsum.photos/${1000 + index}/${500 + index}`}
+                src={campaign.image}
                 alt={campaign.title}
               />
             </div>
@@ -31,7 +44,7 @@ const Home = () => {
                   {campaign.title}
                 </div>
                 <div className="truncate text-zinc-500 italic">
-                  {campaign.story}
+                  {campaign.description}
                 </div>
               </div>
               <div className="flex justify-between">
@@ -52,7 +65,9 @@ const Home = () => {
                 <MdAccountCircle className="text-4xl" />
                 <div className="truncate italic">
                   <span className="text-zinc-500">by</span>{" "}
-                  <span className="font-bold">{campaign.owner}</span>
+                  <span className="font-bold">
+                    {displayAddress(campaign.owner)}
+                  </span>
                 </div>
               </div>
             </div>
