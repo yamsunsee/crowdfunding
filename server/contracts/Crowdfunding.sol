@@ -28,11 +28,6 @@ contract Crowdfunding {
     ) public returns (uint256) {
         Campaign storage campaign = campaigns[numberOfCampaigns];
 
-        require(
-            campaign.deadline < block.timestamp,
-            "The deadline should be a date in the future."
-        );
-
         campaign.owner = _owner;
         campaign.title = _title;
         campaign.description = _description;
@@ -46,26 +41,33 @@ contract Crowdfunding {
         return numberOfCampaigns - 1;
     }
 
-    function removeCampaign(uint256 _id) public {
-    require(_id < numberOfCampaigns, "Invalid campaign id");
+    // function removeCampaign(uint256 _id) public returns (uint256, uint256) {
+    //     require(_id < numberOfCampaigns, "Invalid campaign id");
 
-    Campaign storage campaign = campaigns[_id];
+    //     Campaign storage campaign = campaigns[_id];
 
-    require(
-        campaign.owner == msg.sender,
-        "Only the campaign owner can remove the campaign"
-    );
+    //     require(
+    //         campaign.owner == msg.sender,
+    //         "Only the campaign owner can remove the campaign"
+    //     );
 
-    if (campaign.amountCollected > 0) {
-        (bool sent, ) = payable(campaign.owner).call{value: campaign.amountCollected}("");
-        require(sent, "Failed to send funds");
-    }
+    //     uint256 gasCost = tx.gasprice * gasleft();
+    //     uint256 amountToReturn = campaign.amountCollected - gasCost;
 
-    numberOfCampaigns--;
-    campaigns[_id] = campaigns[numberOfCampaigns];
-    delete campaigns[numberOfCampaigns];
-}
+    //     require(
+    //         amountToReturn > 0,
+    //         "Not enough funds to return after deducting gas cost"
+    //     );
 
+    //     (bool sent, ) = payable(campaign.owner).call{value: amountToReturn}("");
+    //     require(sent, "Funds transfer has failed!");
+
+    //     numberOfCampaigns--;
+    //     campaigns[_id] = campaigns[numberOfCampaigns];
+    //     delete campaigns[numberOfCampaigns];
+
+    //     return (gasCost, amountToReturn);
+    // }
 
     function donateToCampaign(uint256 _id) public payable {
         uint256 amount = msg.value;
@@ -82,12 +84,6 @@ contract Crowdfunding {
         }
     }
 
-    function getDonators(
-        uint256 _id
-    ) public view returns (address[] memory, uint256[] memory) {
-        return (campaigns[_id].donators, campaigns[_id].donations);
-    }
-
     function getCampaigns() public view returns (Campaign[] memory) {
         Campaign[] memory allCampaigns = new Campaign[](numberOfCampaigns);
 
@@ -98,5 +94,13 @@ contract Crowdfunding {
         }
 
         return allCampaigns;
+    }
+
+    function getCampaign(uint256 _id) public view returns (Campaign memory) {
+        require(_id < numberOfCampaigns, "Invalid campaign id");
+
+        Campaign storage campaign = campaigns[_id];
+
+        return campaign;
     }
 }

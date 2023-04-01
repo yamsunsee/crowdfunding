@@ -1,4 +1,5 @@
 const getDaysLeft = (deadline) => {
+  if (!deadline) return "";
   const endDate = new Date(deadline);
   const today = new Date();
   const different = endDate - today;

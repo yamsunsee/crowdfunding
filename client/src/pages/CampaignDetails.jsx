@@ -5,27 +5,34 @@ import {
   MdDeleteForever,
 } from "react-icons/md";
 import { FaDonate } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../store";
 import { Copyable } from "../components";
 import { getDaysLeft, getPercent } from "../utils";
 
 const CampaignDetails = () => {
   const { id } = useParams();
-  const { contract, address, getCampaigns } = useStore();
+  const navigate = useNavigate();
+  const { contract, address, getCampaign, donateToCampaign } = useStore();
   const [campaign, setCampaign] = useState({});
   const [isLoading, setLoading] = useState(false);
+  const [amount, setAmount] = useState();
 
   useEffect(() => {
-    if (contract) fetchCampaigns();
+    if (contract) fetchCampaign();
   }, [contract, address]);
 
-  const fetchCampaigns = async () => {
+  const fetchCampaign = async () => {
     setLoading(true);
-    const data = await getCampaigns();
-    const targetCampaign = data.find((campaign) => campaign.id == id);
-    setCampaign(targetCampaign);
+    const data = await getCampaign(id);
+    setCampaign(data);
     setLoading(false);
+  };
+
+  const fundCampaign = async () => {
+    if (amount <= 0) return;
+    const data = await donateToCampaign(id, amount);
+    fetchCampaign();
   };
 
   return (
@@ -69,7 +76,7 @@ const CampaignDetails = () => {
               {campaign.donators?.length}
             </div>
             <div className="px-4 py-2 italic bg-zinc-700 flex justify-center items-center text-zinc-400">
-              Total Donators
+              Total Donations
             </div>
           </div>
         </div>
@@ -104,12 +111,16 @@ const CampaignDetails = () => {
             <div className="italic text-zinc-500">{campaign.description}</div>
           </div>
           <div className="flex flex-col gap-2">
-            <div className="uppercase text-2xl font-bold">Donators</div>
-            <div className="italic text-zinc-500 w-full flex flex-col gap-2">
+            <div className="uppercase text-2xl font-bold">Donations</div>
+            <div className="italic text-zinc-500 w-full flex flex-col">
               {campaign.donators?.map((backer, index) => (
-                <div key={index} className="flex justify-between">
-                  <div>
-                    {index + 1}. {backer}
+                <div
+                  key={index}
+                  className={`flex justify-between px-8 py-4 border-b border-zinc-800 hover:bg-zinc-800`}
+                >
+                  <div className="flex gap-1">
+                    <div>{index + 1}.</div>
+                    <Copyable string={backer} position="right" />
                   </div>
                   <div>{campaign.donations[index]}</div>
                 </div>
@@ -129,12 +140,13 @@ const CampaignDetails = () => {
                   Congratulations on your efforts.
                 </div>
                 <div className="italic text-zinc-500">
-                  All funds will transfer to your wallet!
+                  The rest of funds will transfer to your wallet after deducting
+                  the gas cost!
                 </div>
               </div>
               <div className="button delete">
                 <MdDeleteForever />
-                <div>Remove campaign</div>
+                <div>Get the funds</div>
               </div>
             </div>
           ) : (
@@ -148,6 +160,7 @@ const CampaignDetails = () => {
                 step="0.01"
                 min="0"
                 placeholder="ETH 0.01"
+                onChange={(event) => setAmount(event.target.value)}
               />
               <div className="bg-zinc-900 p-8 rounded-lg w-full">
                 <div className="font-bold text-xl text-zinc-400">
@@ -158,7 +171,10 @@ const CampaignDetails = () => {
                   you.
                 </div>
               </div>
-              <div className="button">
+              <div
+                onClick={fundCampaign}
+                className={`button${amount > 0 && address ? "" : " disabled"}`}
+              >
                 <FaDonate />
                 <div>Fund campaign</div>
               </div>

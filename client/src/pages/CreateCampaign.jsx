@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useStore } from "../store";
 import { Copyable } from "../components";
-import { checkValidImage } from "../utils";
+import { checkValidImage, getDaysLeft } from "../utils";
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -22,12 +22,17 @@ const CreateCampaign = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setForm({ ...form, [name]: value });
+    if (name === "deadline" && getDaysLeft(value) === 0) {
+      toast.error("The deadline should be a date in the future.");
+      setForm({ ...form, deadline: "" });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (isLoading) return;
+    if (isLoading || !address) return;
 
     checkValidImage(form.image, async (isValid) => {
       if (isValid) {
@@ -129,8 +134,10 @@ const CreateCampaign = () => {
         </div>
         <button
           type="submit"
-          disabled={isLoading}
-          className={`button w-fit self-center${isLoading ? " disabled" : ""}`}
+          disabled={isLoading || !address}
+          className={`button w-fit self-center${
+            isLoading || !address ? " disabled" : ""
+          }`}
         >
           {isLoading ? (
             <RiLoader4Line className="animate-spin" />
