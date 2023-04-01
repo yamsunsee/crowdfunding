@@ -71,13 +71,24 @@ const Profile = () => {
                     <div className="text-zinc-500 italic">Days left</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MdAccountCircle className="text-4xl" />
-                  <div className="truncate italic">
-                    <span className="text-zinc-500">by</span>{" "}
-                    <span className="font-bold">
-                      {displayAddress(campaign.owner)}
-                    </span>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <MdAccountCircle className="text-4xl" />
+                    <div className="truncate italic">
+                      <span className="text-zinc-500">by</span>{" "}
+                      <span className="font-bold">
+                        {displayAddress(campaign.owner)}
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className={`text-xs px-4 py-1 rounded-full border ${
+                      campaign.isActive
+                        ? "border-white text-white"
+                        : "border-zinc-500 text-zinc-500"
+                    }`}
+                  >
+                    {campaign.isActive ? "Active" : "Disabled"}
                   </div>
                 </div>
               </div>

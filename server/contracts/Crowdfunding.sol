@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 contract Crowdfunding {
     struct Campaign {
+        bool isActive;
         address owner;
         string title;
         string description;
@@ -35,39 +36,25 @@ contract Crowdfunding {
         campaign.target = _target;
         campaign.deadline = _deadline;
         campaign.amountCollected = 0;
+        campaign.isActive = true;
 
         numberOfCampaigns++;
 
         return numberOfCampaigns - 1;
     }
 
-    // function removeCampaign(uint256 _id) public returns (uint256, uint256) {
-    //     require(_id < numberOfCampaigns, "Invalid campaign id");
+    function changeCampaignStatus(uint256 _id, bool _status) public {
+        require(_id < numberOfCampaigns, "Invalid campaign id");
 
-    //     Campaign storage campaign = campaigns[_id];
+        Campaign storage campaign = campaigns[_id];
 
-    //     require(
-    //         campaign.owner == msg.sender,
-    //         "Only the campaign owner can remove the campaign"
-    //     );
+        require(
+            campaign.owner == msg.sender,
+            "Only the campaign owner can change the status!"
+        );
 
-    //     uint256 gasCost = tx.gasprice * gasleft();
-    //     uint256 amountToReturn = campaign.amountCollected - gasCost;
-
-    //     require(
-    //         amountToReturn > 0,
-    //         "Not enough funds to return after deducting gas cost"
-    //     );
-
-    //     (bool sent, ) = payable(campaign.owner).call{value: amountToReturn}("");
-    //     require(sent, "Funds transfer has failed!");
-
-    //     numberOfCampaigns--;
-    //     campaigns[_id] = campaigns[numberOfCampaigns];
-    //     delete campaigns[numberOfCampaigns];
-
-    //     return (gasCost, amountToReturn);
-    // }
+        campaign.isActive = _status;
+    }
 
     function donateToCampaign(uint256 _id) public payable {
         uint256 amount = msg.value;

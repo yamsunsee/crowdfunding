@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../store";
-import { MdAccountCircle } from "react-icons/md";
+import { MdAccountCircle, MdFolder } from "react-icons/md";
 import { RiLoader4Line } from "react-icons/ri";
 import { getDaysLeft, displayAddress } from "../utils";
 
@@ -46,12 +46,31 @@ const Home = () => {
                 />
               </div>
               <div className="flex flex-col p-8 gap-4">
-                <div>
-                  <div className="font-bold text-2xl truncate">
-                    {campaign.title}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-1 items-center text-zinc-500 italic">
+                      <MdFolder />
+                      <div>
+                        {campaign.owner === address ? "My campaigns" : "Others"}
+                      </div>
+                    </div>
+                    <div
+                      className={`text-xs px-4 py-1 rounded-full border ${
+                        campaign.isActive
+                          ? "border-white text-white"
+                          : "border-zinc-500 text-zinc-500"
+                      }`}
+                    >
+                      {campaign.isActive ? "Active" : "Disabled"}
+                    </div>
                   </div>
-                  <div className="truncate text-zinc-500 italic">
-                    {campaign.description}
+                  <div>
+                    <div className="font-bold text-2xl truncate">
+                      {campaign.title}
+                    </div>
+                    <div className="truncate text-zinc-500 italic">
+                      {campaign.description}
+                    </div>
                   </div>
                 </div>
                 <div className="flex justify-between">

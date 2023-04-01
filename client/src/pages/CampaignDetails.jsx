@@ -2,18 +2,24 @@ import { useEffect, useState } from "react";
 import {
   MdAccountCircle,
   MdCalendarMonth,
-  MdDeleteForever,
+  MdPowerSettingsNew,
 } from "react-icons/md";
 import { FaDonate } from "react-icons/fa";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useStore } from "../store";
 import { Copyable } from "../components";
 import { getDaysLeft, getPercent } from "../utils";
+import { RiLoader4Line } from "react-icons/ri";
 
 const CampaignDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { contract, address, getCampaign, donateToCampaign } = useStore();
+  const {
+    contract,
+    address,
+    getCampaign,
+    donateToCampaign,
+    changeCampaignStatus,
+  } = useStore();
   const [campaign, setCampaign] = useState({});
   const [isLoading, setLoading] = useState(false);
   const [amount, setAmount] = useState();
@@ -23,16 +29,24 @@ const CampaignDetails = () => {
   }, [contract, address]);
 
   const fetchCampaign = async () => {
-    setLoading(true);
     const data = await getCampaign(id);
     setCampaign(data);
-    setLoading(false);
   };
 
   const fundCampaign = async () => {
-    if (amount <= 0) return;
+    if (amount <= 0 || isLoading) return;
+    setLoading(true);
     const data = await donateToCampaign(id, amount);
     fetchCampaign();
+    setLoading(false);
+  };
+
+  const handleChangeStatus = async (status) => {
+    if (isLoading) return;
+    setLoading(true);
+    const isSuccess = await changeCampaignStatus(id, status);
+    if (isSuccess) fetchCampaign();
+    setLoading(false);
   };
 
   return (
@@ -130,26 +144,79 @@ const CampaignDetails = () => {
         </div>
         <div className="flex flex-col gap-2 flex-shrink-0">
           <div className="uppercase text-2xl font-bold">Fund</div>
-          {campaign.owner === address ? (
-            <div className="bg-zinc-800 w-[30rem] self-center p-8 rounded-lg flex flex-col gap-4 items-center">
-              <div className="font-bold text-2xl text-zinc-500">
-                End the crowdfunding process
-              </div>
-              <div className="bg-zinc-900 p-8 rounded-lg w-full">
-                <div className="font-bold text-xl text-zinc-400">
-                  Congratulations on your efforts.
-                </div>
-                <div className="italic text-zinc-500">
-                  The rest of funds will transfer to your wallet after deducting
-                  the gas cost!
-                </div>
-              </div>
-              <div className="button delete">
-                <MdDeleteForever />
-                <div>Get the funds</div>
-              </div>
+          {!address ? (
+            <div className="bg-zinc-800 w-[30rem] self-center p-8 rounded-lg text-center font-bold text-2xl text-zinc-500">
+              To fund this campaign, please connect to your wallet first!
             </div>
-          ) : (
+          ) : campaign.owner === address ? (
+            campaign.isActive ? (
+              <div className="bg-zinc-800 w-[30rem] self-center p-8 rounded-lg flex flex-col gap-4 items-center">
+                <div className="font-bold text-2xl text-zinc-500">
+                  End the donation process
+                </div>
+                <div className="bg-zinc-900 p-8 rounded-lg w-full">
+                  <div className="font-bold text-xl text-zinc-400">
+                    Congratulations on your efforts.
+                  </div>
+                  <div className="italic text-zinc-500">
+                    You have reached your campaign goal and want to stop the
+                    donation process!
+                  </div>
+                </div>
+                <div
+                  onClick={() => handleChangeStatus(false)}
+                  className={`button delete${isLoading ? " disabled" : ""}`}
+                >
+                  {isLoading ? (
+                    <RiLoader4Line className="animate-spin" />
+                  ) : (
+                    <MdPowerSettingsNew />
+                  )}
+                  <div>Disable campaign</div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-zinc-800 w-[30rem] self-center p-8 rounded-lg flex flex-col gap-4 items-center">
+                <div className="font-bold text-2xl text-zinc-500">
+                  Continue the donation process
+                </div>
+                <div className="bg-zinc-900 p-8 rounded-lg w-full">
+                  <div className="font-bold text-xl text-zinc-400">
+                    Every effort counts, keep going.
+                  </div>
+                  <div className="italic text-zinc-500">
+                    Don't give up, keep pushing and remember that change takes
+                    time!
+                  </div>
+                </div>
+                {campaign.isActive ? (
+                  <div
+                    onClick={() => handleChangeStatus(false)}
+                    className={`button delete${isLoading ? " disabled" : ""}`}
+                  >
+                    {isLoading ? (
+                      <RiLoader4Line className="animate-spin" />
+                    ) : (
+                      <MdPowerSettingsNew />
+                    )}
+                    <div>Disable campaign</div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => handleChangeStatus(true)}
+                    className={`button${isLoading ? " disabled" : ""}`}
+                  >
+                    {isLoading ? (
+                      <RiLoader4Line className="animate-spin" />
+                    ) : (
+                      <MdPowerSettingsNew />
+                    )}
+                    <div>Active campaign</div>
+                  </div>
+                )}
+              </div>
+            )
+          ) : campaign.isActive ? (
             <div className="bg-zinc-800 w-[30rem] self-center p-8 rounded-lg flex flex-col gap-4 items-center">
               <div className="font-bold text-2xl text-zinc-500">
                 Pledge without reward
@@ -173,10 +240,30 @@ const CampaignDetails = () => {
               </div>
               <div
                 onClick={fundCampaign}
-                className={`button${amount > 0 && address ? "" : " disabled"}`}
+                className={`button${
+                  amount <= 0 || isLoading ? " disabled" : ""
+                }`}
               >
-                <FaDonate />
+                {isLoading ? (
+                  <RiLoader4Line className="animate-spin" />
+                ) : (
+                  <FaDonate />
+                )}
                 <div>Fund campaign</div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-zinc-800 w-[30rem] self-center p-8 rounded-lg flex flex-col gap-4 items-center">
+              <div className="font-bold text-2xl text-zinc-500">
+                Disabled campaign
+              </div>
+              <div className="bg-zinc-900 p-8 rounded-lg w-full">
+                <div className="font-bold text-xl text-zinc-400">
+                  Donations are no longer being accepted for this campaign.
+                </div>
+                <div className="italic text-zinc-500">
+                  The owner of this campaign has ended the donation process!
+                </div>
               </div>
             </div>
           )}

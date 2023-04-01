@@ -18,6 +18,10 @@ const Store = ({ children }) => {
     contract,
     "createCampaign"
   );
+  const { mutateAsync: changeCampaignStatus } = useContractWrite(
+    contract,
+    "changeCampaignStatus"
+  );
   const address = useAddress();
   const connect = useMetamask();
 
@@ -44,6 +48,7 @@ const Store = ({ children }) => {
       owner: campaign.owner,
       title: campaign.title,
       image: campaign.image,
+      isActive: campaign.isActive,
       description: campaign.description,
       target: ethers.utils.formatEther(campaign.target),
       amountCollected: ethers.utils.formatEther(campaign.amountCollected),
@@ -63,6 +68,7 @@ const Store = ({ children }) => {
       owner: campaign.owner,
       title: campaign.title,
       image: campaign.image,
+      isActive: campaign.isActive,
       description: campaign.description,
       target: ethers.utils.formatEther(campaign.target),
       amountCollected: ethers.utils.formatEther(campaign.amountCollected),
@@ -88,6 +94,17 @@ const Store = ({ children }) => {
     }
   };
 
+  const changeStatus = async (id, status) => {
+    try {
+      const data = await changeCampaignStatus([id, status]);
+      toast.success("Your campaign status has been changed successfully!");
+      return true;
+    } catch (error) {
+      toast.error("Unfortunately, your campaign status could not be changed!");
+      return false;
+    }
+  };
+
   return (
     <StoreContext.Provider
       value={{
@@ -98,6 +115,7 @@ const Store = ({ children }) => {
         getCampaign,
         getCampaigns,
         donateToCampaign,
+        changeCampaignStatus: changeStatus,
       }}
     >
       {children}
