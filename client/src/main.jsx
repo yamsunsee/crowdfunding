@@ -13,7 +13,7 @@ root.render(
   <React.StrictMode>
     <ThirdwebProvider activeChain={NETWORK}>
       <Store>
-        <BrowserRouter>
+        <BrowserRouter basename="/crowdfunding">
           <App />
         </BrowserRouter>
       </Store>
