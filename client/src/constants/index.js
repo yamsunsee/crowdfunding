@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = "0xa196769Ca67f4903eCa574F5e76e003071A4d84a";
-const NETWORK = "localhost"; //goerli
+const CONTRACT_ADDRESS = "0x7B47092f6ae9E0d9722E68744a11dD551F32A4c8";
+const NETWORK = "goerli"; //localhost
 
 export { CONTRACT_ADDRESS, NETWORK };

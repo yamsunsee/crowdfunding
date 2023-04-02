@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "/crowdfunding/",
   plugins: [react()],
   define: {
     global: "globalThis",

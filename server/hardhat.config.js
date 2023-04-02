@@ -1,26 +1,14 @@
 /** @type import('hardhat/config').HardhatUserConfig */
-// module.exports = {
-//   solidity: {
-//     version: "0.8.9",
-//     defaultNetwork: "goerli",
-//     networks: {
-//       goerli: {
-//         url: "https://rpc.ankr.com/eth_goerli",
-//         accounts: [`0x${process.env.PRIVATE_KEY}`],
-//       },
-//     },
-//     settings: {
-//       optimizer: {
-//         enabled: true,
-//         runs: 200,
-//       },
-//     },
-//   },
-// };
-
 module.exports = {
   solidity: {
     version: "0.8.9",
+    defaultNetwork: "goerli",
+    networks: {
+      goerli: {
+        url: "https://rpc.ankr.com/eth_goerli",
+        accounts: [`0x${process.env.PRIVATE_KEY}`],
+      },
+    },
     settings: {
       optimizer: {
         enabled: true,
@@ -28,17 +16,29 @@ module.exports = {
       },
     },
   },
-
-  defaultNetwork: "running",
-
-  networks: {
-    hardhat: {
-      chainId: 1337,
-    },
-
-    running: {
-      url: "http://localhost:8545",
-      chainId: 1337,
-    },
-  },
 };
+
+// module.exports = {
+//   solidity: {
+//     version: "0.8.9",
+//     settings: {
+//       optimizer: {
+//         enabled: true,
+//         runs: 200,
+//       },
+//     },
+//   },
+
+//   defaultNetwork: "running",
+
+//   networks: {
+//     hardhat: {
+//       chainId: 1337,
+//     },
+
+//     running: {
+//       url: "http://localhost:8545",
+//       chainId: 1337,
+//     },
+//   },
+// };
