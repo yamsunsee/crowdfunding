@@ -48,13 +48,13 @@ const CreateCampaign = () => {
   };
 
   return (
-    <div className="flex flex-col gap-8 bg-zinc-800 rounded-lg p-8">
-      <div className="self-center text-zinc-400 flex gap-2 text-4xl font-bold items-center">
+    <div className="flex flex-col gap-4 bg-zinc-800 rounded-lg p-4 md:p-8">
+      <div className="self-center text-zinc-400 flex gap-2 md:text-4xl font-bold items-center text-3xl">
         <div>Start a campaign</div>
         <MdRocketLaunch />
       </div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-        <div className="grid grid-cols-2 gap-8">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="input">
             <label htmlFor="owner">Your Address *</label>
             <div className="address">
@@ -86,13 +86,13 @@ const CreateCampaign = () => {
             onChange={handleChange}
           />
         </div>
-        <div className="bg-zinc-900 p-8 rounded-lg flex gap-2 text-2xl items-center justify-center">
+        <div className="bg-zinc-900 p-4 md:p-8 rounded-lg flex gap-2 text-center md:text-2xl items-center justify-center">
           <MdCreditScore className="text-zinc-400 text-4xl" />
           <div className="font-bold text-zinc-400">
             You will get 100% of the raised amount
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="input">
             <label htmlFor="target">Goal *</label>
             <input

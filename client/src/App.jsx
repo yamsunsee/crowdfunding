@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <div className="w-full bg-zinc-900 text-white flex flex-col items-center select-none">
-      <div className="p-8 w-full max-w-[120rem] min-h-screen flex flex-col gap-8">
+      <div className="px-4 py-8 w-full max-w-[120rem] min-h-screen flex flex-col gap-4 md:px-8">
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />

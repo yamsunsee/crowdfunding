@@ -28,7 +28,7 @@ const Profile = () => {
   return (
     <div className="flex flex-col gap-4 flex-grow">
       <div className="font-bold">Your Campaigns ({campaigns.length})</div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
         {isLoading ? (
           <div className="flex text-zinc-500 italic items-center">
             <RiLoader4Line className="animate-spin" />
@@ -48,7 +48,7 @@ const Profile = () => {
                   alt={campaign.title}
                 />
               </div>
-              <div className="flex flex-col p-8 gap-4">
+              <div className="flex flex-col p-4 md:p-8 gap-4">
                 <div>
                   <div className="font-bold text-2xl truncate">
                     {campaign.title}
